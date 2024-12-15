@@ -1,5 +1,6 @@
 from dataStructure.HtmlNode import HtmlNode
-from collections import deque
+from dataStructure.utils import get_html_text, SPECIAL_NAMES
+from bs4 import BeautifulSoup
 
 
 class HtmlDocument:
@@ -52,7 +53,7 @@ class HtmlDocument:
         print(node.get_tag(), end='')
 
         # 只有当 ID 不为空且不是特殊标签时，才打印 ID
-        if node.get_id() and node.get_id().strip() and node.get_id() not in ["html", "head", "body", "title"]:
+        if node.get_id() and node.get_id().strip() and node.get_id() not in SPECIAL_NAMES:
             print(f"#{node.get_id()}", end='')
 
         print()  # 换行
@@ -79,6 +80,91 @@ class HtmlDocument:
             # 递归打印子节点
             self.print_tree(node=child, prefix=prefix, is_last=i == child_count - 1, is_first=False)
 
+    def print_indent(self):
+        print(self.to_html_indent_string(self.html, 0))
 
-document = HtmlDocument()
-document.print_tree()
+    def to_html_indent_string(self, node, indent_level):
+        """递归转换 HtmlNode 为缩进格式的 HTML 字符串"""
+        indent = '  ' * indent_level  # 每层缩进两个空格
+        html_str = f"{indent}<{node.tag}"
+
+        if node.get_tag() in SPECIAL_NAMES:
+            pass
+        elif node.id:
+            html_str += f' id="{node.id}"'
+
+        html_str += ">"
+
+        # 添加文本内容（如果有）
+        if node.text:
+            html_str += f"{node.text}"
+
+        # 递归处理子节点
+        if node.children:
+            html_str += "\n"
+            for child in node.children:
+                html_str += self.to_html_indent_string(child, indent_level + 1) + "\n"
+
+            html_str += f"{indent}"  # 关闭标签前的缩进
+
+        html_str += f"</{node.tag}>"
+
+        return html_str
+
+
+def parse_html_file(file_path):
+    """
+    read html file and parse html document
+    :param file_path:
+    :return: HtmlDocument
+    """
+    # 读取 HTML 文件
+    with open(file_path, 'r', encoding='utf-8') as file:
+        html_content = file.read()
+
+    # 使用 BeautifulSoup 解析 HTML 内容
+    soup = BeautifulSoup(html_content, 'lxml')
+
+    # 读取 <title> 标签内容
+    title_text = soup.title.string if soup.title else "No Title"
+
+    # 创建 HtmlDocument 实例
+    doc = HtmlDocument(title_text)
+
+    # 遍历 <body> 中的内容并添加到 HtmlDocument
+    body = soup.body
+    if body:
+        # 递归遍历 body 内容并构建节点
+        def process_node(soup_node):
+            if soup_node.name:
+                # 创建当前节点
+                node_id = soup_node.get('id')
+                text = get_html_text(str(soup_node))
+                # text = soup_node.get_text(strip=True)
+                node = HtmlNode(tag=soup_node.name, id=node_id, text=text)
+
+                # 递归处理子节点
+                for child in soup_node.children:
+                    child_node = process_node(child)
+                    if child_node:
+                        node.add_child(child_node)
+
+                return node
+            return None
+
+        # 处理 body 中的每一个子节点
+        for child in body.children:
+            child_node = process_node(child)
+            if child_node:
+                doc.add_to_body(child_node)
+
+    return doc
+
+
+#doc = parse_html_file(r"D:\CS\dataStructure\FDU\project2\HTML_reader\html_files\example.html")
+#doc.print_tree()
+#print()
+#doc.print_indent()
+
+docu = HtmlDocument()
+docu.print_indent()
