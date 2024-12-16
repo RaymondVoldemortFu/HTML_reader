@@ -1,5 +1,6 @@
 from dataStructure.HtmlNode import HtmlNode
 from dataStructure.utils import get_html_text, SPECIAL_NAMES
+from collections import deque
 from bs4 import BeautifulSoup
 
 
@@ -23,10 +24,53 @@ class HtmlDocument:
 
     def add_to_body(self, node):
         self.body.add_child(node)
+        self.thread_initialize()
 
     def __repr__(self):
         return (f"HtmlDocument(html={repr(self.html)}, head={repr(self.head)},"
                 f" title={repr(self.title)}, body={repr(self.body)})")
+
+    def find_tag(self, tag: str):
+        q = deque()
+        q.append(self.html)
+        result = []
+        while q:
+            node = q.popleft()
+            if node.tag == tag:
+                result.append(node)
+            for child in node.children:
+                q.append(child)
+        return result
+
+    def find_id(self, id: str):
+        q = deque()
+        q.append(self.html)
+        while q:
+            node = q.popleft()
+            if node.id == id:
+                return node
+            for child in node.children:
+                q.append(child)
+        return None
+
+    def thread_initialize(self):
+        """
+        线索化html树结构
+        :return:
+        """
+        self.html.parent = None
+
+        self.head.parent = self.html
+        self.body.parent = self.html
+
+        self.title.parent = self.head
+        q = deque()
+        q.append(self.body)
+        while q:
+            node = q.popleft()
+            for child in node.children:
+                q.append(child)
+                child.parent = node
 
     def print_tree(self, node=None, prefix='', is_last=False, is_first=True):
         """
@@ -80,12 +124,13 @@ class HtmlDocument:
             # 递归打印子节点
             self.print_tree(node=child, prefix=prefix, is_last=i == child_count - 1, is_first=False)
 
-    def print_indent(self):
-        print(self.to_html_indent_string(self.html, 0))
+    def print_indent(self, n=2):
+        print(self.to_html_indent_string(node=self.html, indent_level=0, indent_number=n))
 
-    def to_html_indent_string(self, node, indent_level):
+    def to_html_indent_string(self, node, indent_level, indent_number=2):
         """递归转换 HtmlNode 为缩进格式的 HTML 字符串"""
-        indent = '  ' * indent_level  # 每层缩进两个空格
+        indent_space = ' ' * indent_number
+        indent = indent_space * indent_level  # 每层缩进两个空格
         html_str = f"{indent}<{node.tag}"
 
         if node.get_tag() in SPECIAL_NAMES:
@@ -157,14 +202,17 @@ def parse_html_file(file_path):
             child_node = process_node(child)
             if child_node:
                 doc.add_to_body(child_node)
-
+    doc.thread_initialize()
     return doc
 
 
-#doc = parse_html_file(r"D:\CS\dataStructure\FDU\project2\HTML_reader\html_files\example.html")
-#doc.print_tree()
-#print()
-#doc.print_indent()
+# doc = parse_html_file(r"D:\CS\dataStructure\FDU\project2\HTML_reader\html_files\example.html")
+# doc.print_tree()
+# print()
+# doc.print_indent()
 
-docu = HtmlDocument()
+# docu = HtmlDocument()
+docu = parse_html_file(r"D:\CS\dataStructure\FDU\project2\HTML_reader\html_files\example.html")
 docu.print_indent()
+# print(docu.find_tag("html")[0])
+print(docu.find_id("copyright"))

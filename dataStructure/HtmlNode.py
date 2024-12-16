@@ -1,5 +1,5 @@
 class HtmlNode(object):
-    def __init__(self, tag='', text='', id='', children=None):
+    def __init__(self, tag='', text='', id='', children=None, parent=None):
         if children is None:
             self.children = []
         else:
@@ -7,6 +7,7 @@ class HtmlNode(object):
         self.tag = tag
         self.text = text
         self.id = id
+        self.parent = parent
 
     def add_child(self, child_node):
         """
@@ -29,5 +30,7 @@ class HtmlNode(object):
         return self.children
 
     def __repr__(self):
-        return f"HtmlNode(tag='{self.tag}', id='{self.id}', text='{self.text}', children={len(self.children)})"
+        return f"HtmlNode(tag='{self.tag}', id='{self.id}', text='{self.text}', children={len(self.children)}, parent={self.parent})"
 
+    # def __str__(self):
+    #    return f"<{self.tag} id={self.id}>{self.text}</{self.tag}>"
