@@ -23,6 +23,7 @@ class HtmlEditor:
         parent = before_node.parent
         index = parent.children.index(before_node)
         parent.children.insert(index, node)
+        self.HtmlDoc.thread_initialize()
 
     def insert_node_tag_id_before_id(self, node_tag: str, node_id: str, before_id: str, text: str = ''):
         if before_id == node_id:
@@ -38,12 +39,23 @@ class HtmlEditor:
         if parent is None:
             return False
         parent.children.append(node)
+        node.parent = parent
+        self.HtmlDoc.thread_initialize()
         return True
 
     def append_node_tag_id_parent_id(self, node_tag: str, node_id: str, parent_id: str, text: str = ''):
         if node_id == parent_id:
             return 1
         node = HtmlNode(tag=node_tag, id=node_id, text=text)
+        parent = self.find_id(parent_id)
+        if parent is None:
+            return 2
+        self.append_node_in_parent(node, parent)
+        return 0
+
+    def append_node_parent_id(self, node: HtmlNode, parent_id: str):
+        if node.id == parent_id:
+            return 1
         parent = self.find_id(parent_id)
         if parent is None:
             return 2

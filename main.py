@@ -1,10 +1,16 @@
 from HtmlEditor import HtmlEditor
 from dataStructure.HtmlDocument import *
 from userInterface.utils import *
+from command.CommandManager import CommandManager
+from command.Command import Command
+from command.insert import InsertCommand
+from command.append import AppendCommand
+
 
 if __name__ == '__main__':
     editor = HtmlEditor()
     welcome()
+    commandManager = CommandManager()
     while True:
         user_input = input('请输入命令: ')
         inputs = user_input.split(" ")
@@ -66,15 +72,18 @@ if __name__ == '__main__':
                         text += inputs[i]
                         if i != len(inputs) - 1:
                             text += ' '
-                flag = editor.insert_node_tag_id_before_id(node_tag=tag, node_id=new_node_id,
-                                                           before_id=before_id, text=text)
+                insert = InsertCommand(editor=editor, node_tag=tag, node_id=new_node_id, before_id=before_id, text=text)
+                flag = commandManager.execute_command(insert)
                 if flag == 1:
+                    commandManager.undo_stack.pop()
                     print("新节点id不可与旧节点相同")
                 elif flag == 2:
+                    commandManager.undo_stack.pop()
                     print("指定节点不存在")
                 elif flag == 0:
                     print(f"节点id={new_node_id}插入成功")
                 else:
+                    commandManager.undo_stack.pop()
                     print("error")
             case "append":
                 if len(inputs) < 4:
@@ -89,16 +98,20 @@ if __name__ == '__main__':
                         text += inputs[i]
                         if i != len(inputs) - 1:
                             text += ' '
-                flag = editor.append_node_tag_id_parent_id(node_tag=tag, node_id=new_node_id,
-                                                           parent_id=parent_id, text=text)
+                # breakpoint()
+                append = AppendCommand(editor=editor, node_tag=tag, node_id=new_node_id, parent_id=parent_id, text=text)
+                flag = commandManager.execute_command(append)
                 if flag == 1:
+                    commandManager.undo_stack.pop()
                     print("新节点id不可与旧节点相同")
                 elif flag == 2:
+                    commandManager.undo_stack.pop()
                     print("指定节点不存在")
                 elif flag == 0:
                     print(f"节点id={new_node_id}插入成功")
                 else:
-                    print("error: unhandled exception in insert")
+                    commandManager.undo_stack.pop()
+                    print("error: unhandled exception in append")
             case "delete":
                 id = inputs[1]
                 flag = editor.delete_node_id(id)
@@ -109,7 +122,7 @@ if __name__ == '__main__':
                 elif flag == 0:
                     print(f"节点id={id}插入成功")
                 else:
-                    print("error: unhandled exception in append")
+                    print("error: unhandled exception in delete")
             case "edit-id":
                 if len(inputs) != 3:
                     print("缺少参数: edit-id需要两个参数, 输入\"help\"查看详情")
@@ -139,5 +152,10 @@ if __name__ == '__main__':
                     continue
                 else:
                     node.text = text
+            case "undo":
+                # breakpoint()
+                commandManager.undo_command()
+            case "redo":
+                commandManager.redo_command()
             case _:
                 print("非法指令, 输入\"help\"查看帮助")

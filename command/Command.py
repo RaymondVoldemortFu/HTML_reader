@@ -3,6 +3,7 @@ class Command:
         pass
 
     def undo(self):
+        print("here")
         pass
 
     def redo(self):
