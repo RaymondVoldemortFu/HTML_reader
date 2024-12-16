@@ -5,6 +5,9 @@ from command.CommandManager import CommandManager
 from command.Command import Command
 from command.insert import InsertCommand
 from command.append import AppendCommand
+from command.delete import DeleteCommand
+from command.editId import EditIdCommand
+from command.EditText import EditTextCommand
 
 
 if __name__ == '__main__':
@@ -114,27 +117,37 @@ if __name__ == '__main__':
                     print("error: unhandled exception in append")
             case "delete":
                 id = inputs[1]
-                flag = editor.delete_node_id(id)
+                delete = DeleteCommand(editor=editor, node=editor.find_id(id))
+                flag = commandManager.execute_command(delete)
                 if flag == 1:
                     print("指定节点不存在")
+                    commandManager.undo_stack.pop()
                 elif flag == 2:
                     print("错误: 父节点不存在")
+                    commandManager.undo_stack.pop()
                 elif flag == 0:
-                    print(f"节点id={id}插入成功")
+                    print(f"节点id={id}删除成功")
                 else:
                     print("error: unhandled exception in delete")
+                    commandManager.undo_stack.pop()
             case "edit-id":
                 if len(inputs) != 3:
                     print("缺少参数: edit-id需要两个参数, 输入\"help\"查看详情")
                     continue
                 old_id = inputs[1]
                 new_id = inputs[2]
-                node = editor.HtmlDoc.find_id(old_id)
-                if node is None:
-                    print("指定节点不存在")
-                    continue
+                edit_id = EditIdCommand(editor=editor, old_id=old_id, new_id=new_id)
+                flag = commandManager.execute_command(edit_id)
+                if flag == 1:
+                    commandManager.undo_stack.pop()
+                    print("节点不存在")
+                elif flag == 2:
+                    commandManager.undo_stack.pop()
+                    print("新id已存在")
+                elif flag == 0:
+                    print(f"id {old_id} 已替换为 {new_id}")
                 else:
-                    node.id = new_id
+                    print("error: unhandled exception in edit-id")
             case "edit-text":
                 if len(inputs) < 2:
                     print("缺少参数: edit-text需要至少一个参数, 输入\"help\"查看详情")
@@ -146,12 +159,17 @@ if __name__ == '__main__':
                         text += inputs[i]
                         if i != len(inputs) - 1:
                             text += ' '
-                node = editor.HtmlDoc.find_id(id)
-                if node is None:
+                edit_text = EditTextCommand(editor=editor, node_id=id, new_text=text)
+                flag = commandManager.execute_command(edit_text)
+                if flag == 1:
+                    commandManager.undo_stack.pop()
                     print("指定节点不存在")
                     continue
+                elif flag == 0:
+                    print(f"已编辑id {id}节点文本")
                 else:
-                    node.text = text
+                    commandManager.undo_stack.pop()
+                    print("error: unhandled exception in edit-text")
             case "undo":
                 # breakpoint()
                 commandManager.undo_command()

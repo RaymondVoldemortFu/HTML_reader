@@ -35,6 +35,9 @@ class HtmlEditor:
         self.insert_node_before(node, before_node)
         return 0
 
+    def insert_node_at_index_parent(self, index: int, node: HtmlNode, parent: HtmlNode):
+        parent.children.insert(index, node)
+
     def append_node_in_parent(self, node: HtmlNode, parent: HtmlNode):
         if parent is None:
             return False
@@ -78,12 +81,12 @@ class HtmlEditor:
     def replace_node_id(self, old_id: str, new_id: str):
         node = self.find_id(old_id)
         if node is None:
-            return False
+            return 1
         same_id_node = self.find_id(new_id)
         if same_id_node is not None:
-            return False
+            return 2
         node.id = new_id
-        return True
+        return 0
 
     def edit_node_id_text(self, node_id: str, text: str):
         node = self.find_id(node_id)
