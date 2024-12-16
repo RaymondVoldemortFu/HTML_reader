@@ -30,7 +30,7 @@ class HtmlNode(object):
         return self.children
 
     def __repr__(self):
-        return f"HtmlNode(tag='{self.tag}', id='{self.id}', text='{self.text}', children={len(self.children)}, parent={self.parent})"
+        return f"<{self.tag} id={self.id}>{self.text}</{self.tag}>, parent_tag={self.parent.tag}"
 
     # def __str__(self):
     #    return f"<{self.tag} id={self.id}>{self.text}</{self.tag}>"

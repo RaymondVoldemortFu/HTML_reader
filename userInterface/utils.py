@@ -6,7 +6,8 @@ def welcome():
 
 def print_help():
     print(
-"""read path: 从指定路径读取 HTML 文件并解析为设计的数据结构
+"""init:初始化⼀个空的 HTML 模版
+read path: 从指定路径读取 HTML 文件并解析为设计的数据结构
 save path: 将当前 HTML 数据结构保存为指定路径的 HTML 文件
 find-id id: 查找指定 id 的元素，输出元素的基本信息
 find-tag tag: 查找所有标签名为 tag 的元素，输出所有匹配元素的信息。

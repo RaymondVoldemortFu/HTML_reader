@@ -1,5 +1,5 @@
 from dataStructure.HtmlNode import HtmlNode
-from dataStructure.utils import get_html_text, SPECIAL_NAMES
+from dataStructure.utils import get_html_text, SPECIAL_NAMES, remove_empty_lines
 from collections import deque
 from bs4 import BeautifulSoup
 
@@ -21,6 +21,7 @@ class HtmlDocument:
         # head and body is child of html
         self.html.add_child(self.head)
         self.html.add_child(self.body)
+        self.thread_initialize()
 
     def add_to_body(self, node):
         self.body.add_child(node)
@@ -148,12 +149,12 @@ class HtmlDocument:
         if node.children:
             html_str += "\n"
             for child in node.children:
-                html_str += self.to_html_indent_string(child, indent_level + 1) + "\n"
+                html_str += self.to_html_indent_string(child, indent_level + 1, indent_number) + "\n"
 
             html_str += f"{indent}"  # 关闭标签前的缩进
 
         html_str += f"</{node.tag}>"
-
+        # html_str = remove_empty_lines(html_str)
         return html_str
 
 
@@ -206,13 +207,3 @@ def parse_html_file(file_path):
     return doc
 
 
-# doc = parse_html_file(r"D:\CS\dataStructure\FDU\project2\HTML_reader\html_files\example.html")
-# doc.print_tree()
-# print()
-# doc.print_indent()
-
-# docu = HtmlDocument()
-docu = parse_html_file(r"D:\CS\dataStructure\FDU\project2\HTML_reader\html_files\example.html")
-docu.print_indent()
-# print(docu.find_tag("html")[0])
-print(docu.find_id("copyright"))

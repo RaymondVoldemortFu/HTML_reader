@@ -22,15 +22,17 @@ class HtmlEditor:
     def insert_node_before(self, node: HtmlNode, before_node: HtmlNode):
         parent = before_node.parent
         index = parent.children.index(before_node)
-        parent.children.insert(index + 1, node)
+        parent.children.insert(index, node)
 
-    def insert_node_tag_id_before_id(self, node_tag: str, node_id: str, before_id: str):
-        node = HtmlNode(tag=node_tag, id=node_id)
+    def insert_node_tag_id_before_id(self, node_tag: str, node_id: str, before_id: str, text: str = ''):
+        if before_id == node_id:
+            return 1
+        node = HtmlNode(tag=node_tag, id=node_id, text=text)
         before_node = self.find_id(before_id)
         if before_node is None:
-            return False
+            return 2
         self.insert_node_before(node, before_node)
-        return True
+        return 0
 
     def append_node_in_parent(self, node: HtmlNode, parent: HtmlNode):
         if parent is None:
@@ -38,24 +40,28 @@ class HtmlEditor:
         parent.children.append(node)
         return True
 
-    def append_node_tag_id_parent_id(self, node_tag: str, node_id: str, parent_id: str):
-        node = HtmlNode(tag=node_tag, id=node_id)
+    def append_node_tag_id_parent_id(self, node_tag: str, node_id: str, parent_id: str, text: str = ''):
+        if node_id == parent_id:
+            return 1
+        node = HtmlNode(tag=node_tag, id=node_id, text=text)
         parent = self.find_id(parent_id)
         if parent is None:
-            return False
+            return 2
         self.append_node_in_parent(node, parent)
+        return 0
 
     def delete_node_id(self, node_id: str):
         node = self.find_id(node_id)
         if node is None:
-            return False
+            return 1
         parent = node.parent
         if node_id == "html":
             self.HtmlDoc = None
             return True
         if parent is None:
-            return False
+            return 2
         parent.children.remove(node)
+        return 0
 
     def replace_node_id(self, old_id: str, new_id: str):
         node = self.find_id(old_id)
@@ -73,3 +79,7 @@ class HtmlEditor:
             return False
         node.text = text
         return True
+
+    def save_document(self, file_path):
+        with open(file_path, 'w', encoding='utf-8') as file:
+            file.write(self.HtmlDoc.to_html_indent_string(self.HtmlDoc.html, 0, 2))
