@@ -16,6 +16,9 @@ class AppendCommand(Command):
 
     def execute(self):
         parent = self.editor.find_id(self.parent_id)
+        node = self.editor.find_id(self.node_id)
+        if node is not None:
+            return 1
         self.node = HtmlNode(tag=self.node_tag, id=self.node_id, text=self.text, parent=parent)
         self.executed = True
         return self.editor.append_node_parent_id(node=self.node, parent_id=self.parent_id)

@@ -10,7 +10,7 @@ def get_html_text(html_str):
     if match:
         if match.group(1) == "\n":
             return None
-        return match.group(1).rstrip()  # 返回第一个捕获组中的内容
+        return match.group(1).rstrip().lstrip()  # 返回第一个捕获组中的内容
     return None  # 如果没有找到匹配，返回None
 
 

@@ -15,6 +15,9 @@ class InsertCommand(Command):
 
     def execute(self):
         self.executed = True
+        node = self.editor.find_id(self.node_id)
+        if node is not None:
+            return 1
         return self.editor.insert_node_tag_id_before_id(node_tag=self.node_tag, node_id=self.node_id,
                                                  before_id=self.before_id, text=self.text)
 
