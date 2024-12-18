@@ -24,8 +24,15 @@ if __name__ == '__main__':
             case "exit":
                 exit(0)
             case "print-tree":
-                editor.HtmlDoc.print_tree()
+                if editor.HtmlDoc is None:
+                    print("no html file")
+                    continue
+                else:
+                    editor.HtmlDoc.print_tree()
             case "print-indent":
+                if editor.HtmlDoc is None:
+                    print("no html file")
+                    continue
                 if len(inputs) == 1:
                     editor.HtmlDoc.print_indent()
                 elif len(inputs) == 2:
@@ -40,14 +47,30 @@ if __name__ == '__main__':
                 path = inputs[1]
                 try:
                     editor.read_html_file(path)
+                    print("已读取文件：" + path)
                 except FileNotFoundError:
                     print("文件不存在")
+                except OSError:
+                    print("文件路径错误")
             case "save":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 path = inputs[1]
-                editor.save_document(path)
+                try:
+                    editor.save_document(path)
+                    print("已保存到文件" + path)
+                except FileNotFoundError:
+                    print("路径错误")
+                except OSError:
+                    print("文件路径格式错误")
             case "init":
                 editor.HtmlDoc = HtmlDocument()
+                print("successfully initialize html file")
             case "find-id":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 id = inputs[1]
                 node = editor.HtmlDoc.find_id(id)
                 if node is None:
@@ -55,6 +78,9 @@ if __name__ == '__main__':
                 else:
                     print(node)
             case "find-tag":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 tag = inputs[1]
                 nodes = editor.HtmlDoc.find_tag(tag)
                 if len(nodes) == 0:
@@ -63,6 +89,9 @@ if __name__ == '__main__':
                     for node in nodes:
                         print(node)
             case "insert":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 if len(inputs) < 4:
                     print("非法输入")
                     continue
@@ -89,6 +118,9 @@ if __name__ == '__main__':
                     commandManager.undo_stack.pop()
                     print("error")
             case "append":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 if len(inputs) < 4:
                     print("非法输入")
                     continue
@@ -116,7 +148,11 @@ if __name__ == '__main__':
                     commandManager.undo_stack.pop()
                     print("error: unhandled exception in append")
             case "delete":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 id = inputs[1]
+                # breakpoint()
                 delete = DeleteCommand(editor=editor, node=editor.find_id(id))
                 flag = commandManager.execute_command(delete)
                 if flag == 1:
@@ -131,6 +167,9 @@ if __name__ == '__main__':
                     print("error: unhandled exception in delete")
                     commandManager.undo_stack.pop()
             case "edit-id":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 if len(inputs) != 3:
                     print("缺少参数: edit-id需要两个参数, 输入\"help\"查看详情")
                     continue
@@ -149,6 +188,9 @@ if __name__ == '__main__':
                 else:
                     print("error: unhandled exception in edit-id")
             case "edit-text":
+                if editor.HtmlDoc is None:
+                    print("no html file!")
+                    continue
                 if len(inputs) < 2:
                     print("缺少参数: edit-text需要至少一个参数, 输入\"help\"查看详情")
                     continue

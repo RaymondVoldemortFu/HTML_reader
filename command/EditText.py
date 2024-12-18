@@ -9,7 +9,10 @@ class EditTextCommand(Command):
         self.editor = editor
         self.node_id = node_id
         self.node = self.editor.find_id(node_id)
-        self.old_text = self.node.text
+        if self.node is None:
+            self.old_text = None
+        else:
+            self.old_text = self.node.text
         self.new_text = new_text
 
     def execute(self):

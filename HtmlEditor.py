@@ -14,9 +14,13 @@ class HtmlEditor:
             file.write(self.HtmlDoc.to_html_indent_string(self.HtmlDoc.html, 0, indent))
 
     def find_tag(self, tag: str):
+        if self.HtmlDoc is None:
+            return None
         return self.HtmlDoc.find_tag(tag)
 
     def find_id(self, id: str):
+        if self.HtmlDoc is None:
+            return None
         return self.HtmlDoc.find_id(id)
 
     def insert_node_before(self, node: HtmlNode, before_node: HtmlNode):
@@ -72,7 +76,7 @@ class HtmlEditor:
         parent = node.parent
         if node_id == "html":
             self.HtmlDoc = None
-            return True
+            return 0
         if parent is None:
             return 2
         parent.children.remove(node)

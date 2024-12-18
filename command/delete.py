@@ -8,7 +8,10 @@ class DeleteCommand(Command):
     def __init__(self, editor, node):
         self.editor = editor
         self.node = node
-        self.parent = node.parent
+        if node is None:
+            self.parent = None
+        else:
+            self.parent = node.parent
         self.executed = False
         if self.parent is None:
             self.is_root = True
@@ -19,6 +22,8 @@ class DeleteCommand(Command):
 
     def execute(self):
         self.executed = True
+        if self.node is None:
+            return 1
         return self.editor.delete_node_id(self.node.id)
 
     def undo(self):
